@@ -109,30 +109,88 @@ The REST API handles traditional HTTP operations, while Socket.IO manages real-t
 The project is organized into different layers to keep the codebase modular and maintainable.
 
 ```text
-WHApi/
-│
-├── controllers/       # HTTP request handlers
-│
-├── middlewares/       # Authentication and request middleware
-│
-├── prisma/
-│   └── migrations/    # Database migrations
-│
-├── routes/            # API route definitions
-│
-├── schema/            # Request validation schemas
-│
-├── services/          # Business logic
-│
-├── sockets/           # Socket.IO configuration and events
-│
-├── .env.example       # Environment configuration example
-├── Dockerfile         # Docker configuration
-├── main.js            # Application entry point
-├── server.js          # Server configuration
-├── prisma.config.ts   # Prisma configuration
-├── package.json
-└── README.md
++---Backend
+|   |   .env
+|   |   .env.example
+|   |   .gitignore
+|   |   docker-compose.yml
+|   |   Dockerfile
+|   |   main.js
+|   |   package-lock.json
+|   |   package.json
+|   |   prisma.config.ts
+|   |   server.js
+|   |   swagger.js
+|   |   swagger.json
+|   |   
+|   +---controllers
+        # HTTP request handlers
+|   |       
+|   +---middlewares
+         # Authentication and request middlewares
+|   |           
+|   +---models
+|   |       
+|   +---prisma
+|   |   \---migrations
+        # Database migrations
+|   |               
+|   +---routes
+|   |       
+|   +---schema
+|   |   |     
+         # Request validation schemas
+|   |   \---redis
+|   |       |   
+|   |       # Redis schemas
+|   |               
+|   +---services
+|   |   |   
+        # Business logic services
+|   |   \---selects
+        # Database queries
+|   |           
+|   +---sockets
+|   |   |   
+|   |   # Socket.io handlers & events
+|   |           
+|   \---validations
+    # Request validations
+|           
+\---Frontend
+    |   .gitignore
+    |   eslint.config.js
+    |   index.html
+    |   package-lock.json
+    |   package.json
+    |   README.md
+    |   vite.config.js
+    |   
+    +---Context
+    |   # React context    
+    +---Model
+    |   # React models
+    |         
+    +---Schema
+    |   # React schemas
+    |       
+    +---Services
+    |   # React services
+    |       
+    +---src
+    |   |   App.jsx
+    |   |   index.css
+    |   |   main.jsx
+    |   |   Styles.css
+    |   |       
+    |   +---Components
+    |   |   |   # React components
+    |   |       
+    |   \---Socket
+    |       |   # Socket.io connection
+    |           
+    \---Wrapper
+        # API requests wrapper
 ```
 
 ---
