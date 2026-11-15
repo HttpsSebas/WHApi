@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            Int               @id @default(autoincrement())
+  name          String
+  phone         String            @unique
+  password      String
+  description   String?
+  createdAt     DateTime          @default(now())
+  lastSeenAt    DateTime          @default(now())
+  isOnline      Boolean           @default(false)
+  deleted       Boolean           @default(false)
+  sentMessages  Message[]         @relation("SentMessages")
+  statuses      MessageStatus[]
+  chats         ChatParticipant[]
+  contacts      Contact[]         @relation("UserContacts")
+  blockedUsers  BlockedUser[]     @relation("BlockedByUser")
+  blockedBy     BlockedUser[]     @relation("BlockedUser")
+  refreshTokens RefreshToken[]
+}
+
+model BlockedUser {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  blockedUserId Int
+  createdAt  DateTime @default(now())
+  user       User     @relation("BlockedByUser", fields: [userId], references: [id])
+  blockedUser User     @relation("BlockedUser", fields: [blockedUserId], references: [id])
+
+  @@unique([userId, blockedUserId])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id            Int             @id @default(autoincrement())
+  chatId        Int
+  senderId      Int
+  content       String
+  createdAt     DateTime        @default(now())
+  deleted       Boolean         @default(false)
+  statuses      MessageStatus[]
+  globalStatus        MessageStatusEnum @default(SENT)
+  chat          Chat            @relation(fields: [chatId], references: [id])
+  sender        User            @relation("SentMessages", fields: [senderId], references: [id])
+  lastMessageOf Chat?           @relation("LastMessage")
+}
+
+model Chat {
+  id            Int               @id @default(autoincrement())
+  type          ChatType
+  name          String?
+  description   String?
+  createdAt     DateTime          @default(now())
+  participants  ChatParticipant[]
+  lastMessageId Int?              @unique
+  lastMessage   Message?          @relation("LastMessage", fields: [lastMessageId], references: [id])
+  messages      Message[]
+}
+
+model ChatParticipant {
+  id          Int      @id @default(autoincrement())
+  chatId      Int
+  userId      Int
+  role        ChatRole @default(MEMBER)
+  joinedAt    DateTime @default(now())
+  unreadCount Int      @default(0)
+  chat        Chat     @relation(fields: [chatId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([chatId, userId])
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  alias     String?
+  phone     String
+  createdAt DateTime @default(now())
+  user      User     @relation("UserContacts", fields: [userId], references: [id])
+
+  @@unique([userId, phone])
+}
+
+model MessageStatus {
+  id        Int               @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  status    MessageStatusEnum @default(SENT)
+  updatedAt DateTime          @updatedAt
+  message   Message           @relation(fields: [messageId], references: [id])
+  user      User              @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+}
+
+enum ChatType {
+  PRIVATE
+  GROUP
+}
+
+enum ChatRole {
+  ADMIN
+  MEMBER
+}
+
+enum MessageStatusEnum {
+  SENT
+  DELIVERED
+  READ
+}
