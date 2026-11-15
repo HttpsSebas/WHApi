@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../Socket/socket";
 import { ContactsContext } from "../../Context/contactsProvider";
 import { useAuth } from "../../Context/authProvider";
-import fetchWrapper from "../../Wrapper/fetchWrapper";
+import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper";
 
 export default function UserInfo() {
   const navigate = useNavigate();

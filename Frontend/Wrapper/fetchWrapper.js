@@ -1,4 +1,4 @@
-import { reconnectSocket } from "../src/Socket/socket";
+import { reconnectSocket } from "../../src/Socket/socket";
 
 let refreshPromise = null;
 let currentToken = null;

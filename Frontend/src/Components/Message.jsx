@@ -1,5 +1,5 @@
 import { useAuth } from "../../Context/authProvider";
-import ".././Styles.css";
+import "../Styles.css";
 import { socket } from "../Socket/socket";
 import { useContext, useEffect } from "react";
 import { ContactsContext } from "../../Context/contactsProvider";

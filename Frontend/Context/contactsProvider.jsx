@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import fetchWrapper from "../Wrapper/fetchWrapper";
-import { socket } from "../src/Socket/socket";
+import fetchWrapper from "../Whapi/Wrapper/fetchWrapper.js";
+import { socket } from "../src/Socket/socket.js";
 import { useAuth } from "./authProvider.jsx";
 
 export const ContactsContext = createContext([]);

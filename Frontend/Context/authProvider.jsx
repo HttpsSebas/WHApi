@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import fetchWrapper, { setCurrentToken } from "../Wrapper/fetchWrapper";
+import fetchWrapper, { setCurrentToken } from "../Whapi/Wrapper/fetchWrapper";
 import { socket, initSocket, reconnectSocket } from "../src/Socket/socket";
 
 export const AuthContext = createContext({});

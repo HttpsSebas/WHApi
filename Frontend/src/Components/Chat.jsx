@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
-import Message from "./Message";
+import Message from "./Message.jsx";
 import UnreadMessagesCount from "./UnreadMessagesCount.jsx";
 import ChatTitle from "./ChatTitle.jsx";
 import { Link } from "react-router-dom";
-import { socket } from "../Socket/socket";
-import fetchWrapper from "../../Wrapper/fetchWrapper";
+import { socket } from "../Socket/socket.js";
+import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper.js";
 import { useAuth } from "../../Context/authProvider.jsx";
 
 export default function Chat() {

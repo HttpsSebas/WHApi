@@ -1,4 +1,4 @@
-import fetchWrapper from "../../Wrapper/fetchWrapper";
+import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper.js";
 import "../Styles.css";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
