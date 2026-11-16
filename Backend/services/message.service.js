@@ -1,13 +1,8 @@
 import { ChatParticipant } from "../models/chatParticipant.model.js";
 import { Message } from "../models/message.model.js";
 import { MessageStatus } from "../models/messageStatus.model.js";
-import { updateChatCache } from "../schema/redis/keys/chat.keys.js";
 import {
   getMessagesCache,
-  deleteMessageCache,
-  createMessageCache,
-  createMessagesCache,
-  editMessageCache,
 } from "../schema/redis/keys/message.keys.js";
 import {
   getChatById,
@@ -407,62 +402,6 @@ export async function deliverMessage({ tx = prisma, userIds, messageId }) {
   return deliverMessage;
 }
 
-export async function checkMessageStatus({
-  tx = prisma,
-  messageId,
-  chatId,
-  lastReadMessageId,
-}) {
-  try {
-    // check users message status
-    const messagesToUpdate = await Message.findMany({
-      tx,
-      where: {
-        chatId,
-        id: {
-          gt: lastReadMessageId || 0,
-          lte: messageId,
-        },
-      },
-      select: {
-        id: true,
-        senderId: true,
-        statuses: {
-          select: {
-            status: true,
-          },
-        },
-      },
-    });
-
-    // Calcular y actualizar el globalStatus de CADA mensaje
-    for (const msg of messagesToUpdate) {
-      const statuses = msg.statuses.map((s) => s.status);
-
-      let globalStatus;
-      if (statuses.every((s) => s === "READ")) {
-        globalStatus = "READ";
-      } else if (statuses.some((s) => s === "DELIVERED" || s === "READ")) {
-        globalStatus = "DELIVERED";
-      } else {
-        globalStatus = "SENT";
-      }
-
-      await updateGlobalMessageStatus({
-        tx,
-        messageId: msg.id,
-        chatId,
-        globalStatus,
-        lastReadMessageId,
-      });
-    }
-
-    return { globalStatus: await getGlobalMessageStatus({ tx, messageId }) };
-  } catch (e) {
-    console.log(e);
-  }
-}
-
 export async function getGlobalMessageStatus({ tx = prisma, messageId }) {
   const messageStatus = await Message.findUnique({
     tx,
@@ -477,7 +416,7 @@ export async function updateGlobalMessageStatus({
   globalStatus,
 }) {
   try {
-    const messageStatus = await Message.update({
+    const message = await Message.update({
       tx,
       messageId,
       data: {
@@ -485,7 +424,7 @@ export async function updateGlobalMessageStatus({
       },
     });
 
-    return messageStatus;
+    return message;
   } catch (e) {
     console.log(e);
   }
@@ -642,7 +581,7 @@ export async function refreshGlobalMessageStatus({
 
       const updatedMessage = await Message.update({
         tx,
-        messageId,
+        messageId: msg.id ,
         data: {
           globalStatus,
         },
