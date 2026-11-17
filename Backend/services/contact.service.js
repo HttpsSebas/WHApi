@@ -3,6 +3,7 @@ import { findUser } from "./user.service.js";
 import {
   getUserContacts,
 } from "../schema/redis/keys/contact.keys.js";
+import { emit } from "../sockets/events/eventBus.js";
 
 export async function getContacts({ userId }) {
   try {

@@ -35,4 +35,19 @@ export class User extends BaseModel {
       data,
     });
   }
+
+  static async createBlock({ tx, data }) {
+    return await User.client(tx).blockedUser.create({ data });
+  }
+
+  static async findFirstBlocked({ tx, where, include }) {
+    return await User.client(tx).blockedUser.findFirst({
+      where,
+      include,
+    });
+  }
+
+  static async deleteBlock({ tx, where }) {
+    return await User.client(tx).blockedUser.deleteMany({ where });
+  }
 }

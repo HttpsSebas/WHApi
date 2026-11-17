@@ -248,6 +248,10 @@ export async function hasAlreadyPrivateChat({
   return await Chat.findPrivateChat({ tx, userId, otherUserId });
 }
 
+export async function findPrivateChat({ tx = prisma, userId, otherUserId }) {
+  return await Chat.findPrivateChat({ tx, userId, otherUserId });
+}
+
 export async function isUserInChat({ tx = prisma, userId, chatId }) {
   return await ChatParticipant.findFirst({ tx, userId, chatId });
 }

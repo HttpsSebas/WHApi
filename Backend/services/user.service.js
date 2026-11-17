@@ -1,32 +1,27 @@
 import bcrypt from "bcrypt";
-import prisma from "../schema/prisma/client.js";
+import { User } from "../models/user.model.js";
 
 import {
   cacheUserPresence,
   getUserPresences,
 } from "../schema/redis/keys/user.keys.js";
 
-export default async function createUser({ tx = prisma, user }) {
+export default async function createUser({ user }) {
   // Crypt password and replace the plain password in socket
   const hashedPassword = await bcrypt.hash(user.password, 10);
   user.password = hashedPassword;
 
-  const createdUser = await tx.user.create({
-    data: user,
-    select: {
-      id: true,
-      phone: true,
-      name: true,
-      description: true,
-    },
+  const createdUser = await User.create({
+    user,
   });
 
   return createdUser;
 }
 
-export async function findUser({ tx = prisma, phone }) {
+export async function findUser({ tx, phone }) {
   try {
-    const user = await tx.user.findFirst({
+    const user = await User.findFirst({
+      tx,
       where: {
         phone,
       },
@@ -39,7 +34,8 @@ export async function findUser({ tx = prisma, phone }) {
 
 export async function findUserById({ tx = prisma, userId }) {
   try {
-    return await tx.user.findFirst({
+    return await User.findFirst({
+      tx,
       where: {
         id: userId,
       },
@@ -87,7 +83,8 @@ export async function getPresences({ userIds }) {
 
 export async function findManyUsersById({ tx = prisma, userIds }) {
   try {
-    return await tx.user.findMany({
+    return await User.findMany({
+      tx,
       where: {
         id: {
           in: userIds,
@@ -103,14 +100,14 @@ export async function updateUser({ userId, user }) {
   try {
     // Check if phone number already exists
     if (user.phone) {
-      const userExists = await findUser({ tx: prisma, phone: user.phone });
+      const userExists = await findUser({ phone: user.phone });
       if (userExists && userExists.id !== userId) {
         throw new Error("Phone number already exists");
       }
     }
 
     // Update user in db
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await User.update({
       where: {
         id: userId,
       },
@@ -149,12 +146,9 @@ export async function updateUser({ userId, user }) {
   }
 }
 
-export async function userBlockedRelation({
-  tx = prisma,
-  userId,
-  participantIds,
-}) {
-  return await tx.blockedUser.findFirst({
+export async function userBlockedRelation({ tx, userId, participantIds }) {
+  return await User.findFirstBlocked({
+    tx,
     where: {
       OR: [
         // Check if user has a blocked participant
@@ -190,30 +184,11 @@ export async function userBlockedRelation({
   });
 }
 
-export async function isUserBlocked({ tx = prisma, userId, otherUserId }) {
-  return await tx.blockedUser.findFirst({
-    where: {
-      userId,
-      blockedUserId: otherUserId,
-    },
-  });
-}
-
-export async function findPrivateChat({ tx = prisma, userId, otherUserId }) {
-  return await tx.chat.findFirst({
-    where: {
-      type: "PRIVATE",
-      participants: {
-        some: {
-          userId,
-        },
-      },
-      participants: {
-        some: {
-          userId: otherUserId,
-        },
-      },
-    },
+export async function isUserBlocked({ tx, userId, otherUserId }) {
+  return await User.findFirstBlocked({
+    tx,
+    userId,
+    blockedUserId: otherUserId,
   });
 }
 
@@ -246,7 +221,8 @@ export async function blockUser({ tx = prisma, userId, blockedUserId }) {
     throw error;
   }
 
-  return await tx.blockedUser.create({
+  return await User.createBlock({
+    tx,
     data: {
       userId,
       blockedUserId,
@@ -278,18 +254,17 @@ export async function unblockUser({ tx = prisma, userId, blockedUserId }) {
     throw error;
   }
 
-  return await tx.blockedUser.delete({
+  return await User.deleteBlock({
+    tx,
     where: {
-      userId_blockedUserId: {
-        userId,
-        blockedUserId,
-      },
+      userId,
+      blockedUserId,
     },
-  });
+  })
 }
 
 export async function blockUserService({ userId, blockedUserId }) {
-  const payload = await prisma.$transaction(async (tx) => {
+  const payload = await User.transaction(async (tx) => {
     const result = await blockUser({ tx, userId, blockedUserId });
     return {
       userId: result.userId,
@@ -302,7 +277,7 @@ export async function blockUserService({ userId, blockedUserId }) {
 }
 
 export async function unblockUserService({ userId, blockedUserId }) {
-  const payload = await prisma.$transaction(async (tx) => {
+  const payload = await User.transaction(async (tx) => {
     const result = await unblockUser({ tx, userId, blockedUserId });
     return {
       userId: result.userId,

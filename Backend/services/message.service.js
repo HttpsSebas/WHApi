@@ -4,6 +4,7 @@ import { MessageStatus } from "../models/messageStatus.model.js";
 import {
   getMessagesCache,
 } from "../schema/redis/keys/message.keys.js";
+import { emit } from "../sockets/events/eventBus.js";
 import {
   getChatById,
   updateChat,

@@ -2,8 +2,8 @@ import {
   blockUserService,
   unblockUserService,
   updateUser,
-  findPrivateChat,
 } from "../../services/user.service.js";
+import { findPrivateChat } from "../../services/chat.service.js";
 
 import { validateUserUpdate } from "../../middlewares/http/user.middleware.js";
 import { getChatIds } from "../../services/chat.service.js";
