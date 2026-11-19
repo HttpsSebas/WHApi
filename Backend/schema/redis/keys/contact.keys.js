@@ -40,6 +40,17 @@ export async function deleteContactsCache(userId) {
   return await redisClient.del(`user:${String(userId)}:contacts`);
 }
 
+export async function deleteContactsCacheForUsers(userIds) {
+    await Promise.all(
+      userIds.map(async (id) => {
+        const key = `user:${String(id)}:contacts`;
+        
+        await redisClient.del(key);
+        
+      }),
+    );
+}
+
 export async function deleteContactFromCache(userId, contactId) {
   return await redisClient.hDel(
     `user:${String(userId)}:contacts`,
@@ -49,5 +60,9 @@ export async function deleteContactFromCache(userId, contactId) {
 
 export async function updateContactInCache(userId, contact) {
   const key = `user:${String(userId)}:contacts`;
-  return await redisClient.hSet(key, contact.contactId, JSON.stringify(contact));
+  return await redisClient.hSet(
+    key,
+    contact.contactId,
+    JSON.stringify(contact),
+  );
 }

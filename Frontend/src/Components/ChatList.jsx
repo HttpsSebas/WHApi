@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../Socket/socket.js";
 import { useAuth } from "../../Context/authProvider.jsx";
-import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper.js";
+import fetchWrapper from "../../Wrapper/fetchWrapper.js";
 import ChatItem from "./ChatList-Item.jsx";
 import chatSchema from "../../Schema/chat.js";
 

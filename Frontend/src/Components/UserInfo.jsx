@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../Socket/socket";
 import { ContactsContext } from "../../Context/contactsProvider";
 import { useAuth } from "../../Context/authProvider";
-import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper";
+import fetchWrapper from "../../Wrapper/fetchWrapper";
 
 export default function UserInfo() {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ export default function UserInfo() {
           return;
         }
         if (contact) {
+          console.log("[user:info] contact:", contact);
           setTarget(contact);
           setLoading(false);
           return;
@@ -153,11 +154,12 @@ export default function UserInfo() {
           return;
         }
         const data = await response.json();
-        const updatedUser = data.payload.data;
+        const updatedUser = data.data;
         setTarget(updatedUser);
         setError("");
         setEdit(false);
       } catch (e) {
+        console.error(e);
         setError(e.message);
       }
     }
@@ -314,7 +316,7 @@ export default function UserInfo() {
               {isContact ? target.alias : target.name}
             </p>
             <p className="user-phone">{target.phone}</p>
-            <p className="user-description">{target.description}</p>
+            <p className="user-description">{target.description || target.contactUser?.description}</p>
           </div>
         )}
 

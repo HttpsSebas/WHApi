@@ -56,7 +56,7 @@ export async function applyContactAliases(chats, userId) {
   }
 }
 
-export async function verifyContactPhone({ tx = prisma, contactPhone }) {
+export async function verifyContactPhone({ tx, contactPhone }) {
   const user = await findUser({ tx, phone: contactPhone });
 
   if (!user) {
@@ -73,7 +73,7 @@ export async function verifyContactPhone({ tx = prisma, contactPhone }) {
   return true;
 }
 
-export async function getContact({ tx = prisma, userId, contactId }) {
+export async function getContact({ tx, userId, contactId }) {
   const contact = await Contact.findFirst({
     tx,
     userId,
@@ -83,7 +83,7 @@ export async function getContact({ tx = prisma, userId, contactId }) {
   return contact;
 }
 
-export async function validateUserContact({ tx = prisma, userId, contactId }) {
+export async function validateUserContact({ tx, userId, contactId }) {
   const contact = await getContact({ tx, userId, contactId });
   if (contact.userId !== userId) {
     const error = new Error("Contact not found");

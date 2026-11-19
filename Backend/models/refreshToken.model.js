@@ -1,4 +1,4 @@
-import { BaseModel } from "./base";
+import { BaseModel } from "./base.js";
 
 export class RefreshToken extends BaseModel {
   static async create({ tx, userId, token, expiresAt }) {
@@ -20,7 +20,7 @@ export class RefreshToken extends BaseModel {
   }
 
   static async delete({ tx, refreshToken }) {
-    return await RefreshToken.client(tx).refreshToken.delete({
+    return await RefreshToken.client(tx).refreshToken.deleteMany({
       where: { token: refreshToken },
     });
   }

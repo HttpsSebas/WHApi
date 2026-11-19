@@ -48,12 +48,12 @@ export async function getMessages({ chatId }) {
   return result;
 }
 
-export async function getMessageById({ tx = prisma, messageId }) {
+export async function getMessageById({ tx, messageId }) {
   return await Message.findUnique({ tx, messageId });
 }
 
 export async function getUsersUnreadCountByChatId({
-  tx = prisma,
+  tx,
   chatId,
   userIds,
 }) {
@@ -69,7 +69,7 @@ export async function getUsersUnreadCountByChatId({
   }));
 }
 
-export async function syncMessages({ tx = prisma, userId }) {
+export async function syncMessages({ tx, userId }) {
   // Sync messages of the user
   // This function gets all the messages with status SENT
 
@@ -317,7 +317,7 @@ export async function deleteMessage({ userId, messageId, chatId }) {
 }
 
 export async function readUntilMessage({
-  tx = prisma,
+  tx,
   userId,
   messageId,
   lastReadMessageId,
@@ -383,7 +383,7 @@ export async function readUntilMessage({
   }
 }
 
-export async function deliverMessage({ tx = prisma, userIds, messageId }) {
+export async function deliverMessage({ tx, userIds, messageId }) {
   if (!messageId) return;
 
   const deliverMessage = await MessageStatus.updateMany({
@@ -403,7 +403,7 @@ export async function deliverMessage({ tx = prisma, userIds, messageId }) {
   return deliverMessage;
 }
 
-export async function getGlobalMessageStatus({ tx = prisma, messageId }) {
+export async function getGlobalMessageStatus({ tx, messageId }) {
   const messageStatus = await Message.findUnique({
     tx,
     messageId,
@@ -412,7 +412,7 @@ export async function getGlobalMessageStatus({ tx = prisma, messageId }) {
 }
 
 export async function updateGlobalMessageStatus({
-  tx = prisma,
+  tx,
   messageId,
   globalStatus,
 }) {
@@ -509,7 +509,7 @@ export async function markMessageAsRead({ userId, messageId, chatId }) {
 }
 
 export async function markMessageAsDelivered({
-  tx = prisma,
+  tx,
   messageId,
   userIds,
 }) {
@@ -530,7 +530,7 @@ export async function markMessageAsDelivered({
 }
 
 export async function refreshGlobalMessageStatus({
-  tx = prisma,
+  tx,
   messageId,
   lastReadMessageId = null,
 }) {

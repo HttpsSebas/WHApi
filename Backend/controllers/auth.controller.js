@@ -48,9 +48,13 @@ async function loginController(req, res) {
 
 async function logoutController(req, res) {
   try {
-    const payload = await logoutUser({ userId: req.user.id });
-    res.user = null;
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (refreshToken){
+      await logoutUser({ userId: req.user.id });
+    }
     res.clearCookie("refreshToken");
+    res.user = null;
 
     res.header("Authorization", "");
 
@@ -59,6 +63,8 @@ async function logoutController(req, res) {
       message: "Logout successful",
     });
   } catch (e) {
+    console.log(e);
+    res.clearCookie("refreshToken");
     return res.status(e.status || 500).json({
       ok: false,
       message: e.message,

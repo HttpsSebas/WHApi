@@ -1,5 +1,8 @@
 import { deleteUserChats } from "../../schema/redis/keys/chat.keys.js";
-import { updateContactInCache } from "../../schema/redis/keys/contact.keys.js";
+import {
+  deleteContactsCacheForUsers,
+  updateContactInCache,
+} from "../../schema/redis/keys/contact.keys.js";
 import {
   createChatCache,
   updateChatCache,
@@ -161,6 +164,10 @@ on("messages.globalStatus.updated", async ({ messages }) => {
 
 on("user.loggedOut", async ({ userId }) => {
   await deleteUserChats([userId]);
+});
+
+on("user.updated", async ({ userIds }) => {
+  await deleteContactsCacheForUsers(userIds);
 });
 
 /* ------------------------------------------------------------------ */

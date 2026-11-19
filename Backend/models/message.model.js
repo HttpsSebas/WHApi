@@ -1,4 +1,4 @@
-import { BaseModel } from "./base";
+import { BaseModel } from "./base.js";
 
 export class Message extends BaseModel {
   static async create({ tx, userId, chatId, message }) {

@@ -277,7 +277,7 @@ export async function updateChatCache(chatId, changes) {
     }
 
     if (changes.lastMessage !== undefined) {
-      fields.lastMessage = String(changes.lastMessageId ?? "");
+      fields.lastMessage = String(changes.lastMessage ?? "");
     }
 
     if (changes.lastMessageId !== undefined) {

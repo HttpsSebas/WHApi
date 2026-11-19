@@ -5,7 +5,7 @@ import UnreadMessagesCount from "./UnreadMessagesCount.jsx";
 import ChatTitle from "./ChatTitle.jsx";
 import { Link } from "react-router-dom";
 import { socket } from "../Socket/socket.js";
-import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper.js";
+import fetchWrapper from "../../Wrapper/fetchWrapper.js";
 import { useAuth } from "../../Context/authProvider.jsx";
 
 export default function Chat() {

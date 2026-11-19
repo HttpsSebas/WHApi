@@ -34,6 +34,7 @@ export default function Login() {
       navigate("/");
       return data;
     } catch (e) {
+      console.error(e);
       setError(e.message);
     }
   }

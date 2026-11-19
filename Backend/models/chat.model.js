@@ -1,4 +1,4 @@
-import { BaseModel } from "./base"
+import { BaseModel } from "./base.js"
 export class Chat extends BaseModel {
 
   static async findById({ tx, where, select }) {

@@ -1,4 +1,4 @@
-import { BaseModel } from "./base";
+import { BaseModel } from "./base.js";
 
 export class Contact extends BaseModel {
   static async findMany({ tx, userId }) {

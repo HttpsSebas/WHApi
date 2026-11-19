@@ -1,4 +1,3 @@
-import fetchWrapper from "../../Whapi/Wrapper/fetchWrapper";
 import { useEffect, useState } from "react";
 import { socket } from "../Socket/socket";
 

@@ -32,12 +32,12 @@ export function isRefreshTokenValid(token) {
   }
 }
 
-export async function findRefreshToken({ tx = prisma, refreshToken }) {
+export async function findRefreshToken({ tx, refreshToken }) {
   return await RefreshToken.findUnique({ tx, refreshToken });
 }
 
 export async function createRefreshToken({
-  tx = prisma,
+  tx,
   userId,
   token,
   expiresAt,
@@ -51,7 +51,7 @@ export async function createRefreshToken({
   }
 }
 
-export async function deleteRefreshToken({ tx = prisma, refreshToken }) {
+export async function deleteRefreshToken({ tx, refreshToken }) {
   return await RefreshToken.delete({ tx, refreshToken });
 }
 
@@ -69,7 +69,6 @@ export function getUserFromRefreshToken(refreshToken) {
 }
 
 export async function newAccessToken({ refreshToken }) {
-  console.log(refreshToken);
   const user = getUserFromRefreshToken(refreshToken);
 
   if (!user) {

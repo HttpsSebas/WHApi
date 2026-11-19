@@ -5,6 +5,7 @@ import {
   cacheUserPresence,
   getUserPresences,
 } from "../schema/redis/keys/user.keys.js";
+import { emit } from "../sockets/events/eventBus.js";
 
 export default async function createUser({ user }) {
   // Crypt password and replace the plain password in socket
@@ -32,7 +33,7 @@ export async function findUser({ tx, phone }) {
   }
 }
 
-export async function findUserById({ tx = prisma, userId }) {
+export async function findUserById({ tx, userId }) {
   try {
     return await User.findFirst({
       tx,
@@ -81,7 +82,7 @@ export async function getPresences({ userIds }) {
   }
 }
 
-export async function findManyUsersById({ tx = prisma, userIds }) {
+export async function findManyUsersById({ tx, userIds }) {
   try {
     return await User.findMany({
       tx,
@@ -99,19 +100,36 @@ export async function findManyUsersById({ tx = prisma, userIds }) {
 export async function updateUser({ userId, user }) {
   try {
     // Check if phone number already exists
-    if (user.phone) {
-      const userExists = await findUser({ phone: user.phone });
-      if (userExists && userExists.id !== userId) {
-        throw new Error("Phone number already exists");
+    const result = await User.transaction(async (tx) => {
+      if (user.phone) {
+        const userExists = await findUser({ tx, phone: user.phone });
+        if (userExists && userExists.id !== userId) {
+          throw new Error("Phone number already exists");
+        }
       }
-    }
 
-    // Update user in db
-    const updatedUser = await User.update({
-      where: {
-        id: userId,
-      },
-      data: user,
+      // Update user in db
+      const updatedUser = await User.update({
+        tx,
+        where: {
+          id: userId,
+        },
+        data: user,
+      });
+
+      // Get contacts of updated user
+      const contactOf = await User.findMany({
+        tx,
+        where: {
+          contacts: {
+            some: {
+              contactId: userId,
+            },
+          },
+        },
+      });
+
+      return { updatedUser, contactOf };
     });
 
     if (user.isOnline !== undefined || user.lastSeenAt !== undefined) {
@@ -134,11 +152,16 @@ export async function updateUser({ userId, user }) {
       });
     }
 
+    await emit("user.updated", {
+      userIds: result.contactOf.map((user) => user.id),
+    });
+
     return {
       message: "User updated successfully",
-      data: updatedUser,
+      data: result.updatedUser,
     };
   } catch (e) {
+    console.log(e);
     if (e.code === "P2025") {
       throw new Error("User not found");
     }
@@ -192,7 +215,7 @@ export async function isUserBlocked({ tx, userId, otherUserId }) {
   });
 }
 
-export async function blockUser({ tx = prisma, userId, blockedUserId }) {
+export async function blockUser({ tx, userId, blockedUserId }) {
   // Check if both users exist
   const user = await findUserById({ tx, userId });
   const blockedUser = await findUserById({ tx, userId: blockedUserId });
@@ -230,7 +253,7 @@ export async function blockUser({ tx = prisma, userId, blockedUserId }) {
   });
 }
 
-export async function unblockUser({ tx = prisma, userId, blockedUserId }) {
+export async function unblockUser({ tx, userId, blockedUserId }) {
   const user = await findUserById({ tx, userId });
   const blockedUser = await findUserById({ tx, userId: blockedUserId });
 
@@ -260,7 +283,7 @@ export async function unblockUser({ tx = prisma, userId, blockedUserId }) {
       userId,
       blockedUserId,
     },
-  })
+  });
 }
 
 export async function blockUserService({ userId, blockedUserId }) {

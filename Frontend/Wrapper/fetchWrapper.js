@@ -1,9 +1,10 @@
-import { reconnectSocket } from "../../src/Socket/socket";
+import { reconnectSocket } from "../src/Socket/socket.js";
 
 let refreshPromise = null;
 let currentToken = null;
+let sessionExpiredHandled = false;
 
-async function refreshSession({ onSessionExpired }) {
+async function refreshSession() {
   // If another refresh is already in progress, wait for it
   if (refreshPromise) {
     return refreshPromise;
@@ -34,7 +35,9 @@ async function refreshSession({ onSessionExpired }) {
 
       return { token: newToken, user };
     } catch (error) {
-      onSessionExpired?.();
+      if (error.message === "SESSION_EXPIRED") {
+        handleSessionExpired();
+      }
       throw error;
     } finally {
       // Reset the refresh promise
@@ -47,6 +50,25 @@ async function refreshSession({ onSessionExpired }) {
 
 export function setCurrentToken(token) {
   currentToken = token;
+  if (token) {
+    sessionExpiredHandled = false;
+  }
+}
+
+function handleSessionExpired() {
+  if (sessionExpiredHandled) return;
+
+  sessionExpiredHandled = true;
+
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
+  currentToken = null;
+
+  try {
+    socket.disconnect();
+  } catch (_) {}
+
+  throw new Error("SESSION_EXPIRED");
 }
 
 export default async function fetchWrapper({
@@ -54,29 +76,33 @@ export default async function fetchWrapper({
   token,
   url,
   options = {},
-  onSessionExpired,
+  retry = true,
 }) {
   const tokenToUse = currentToken ?? token;
+
+  const headers = {
+    ...options.headers,
+  };
+
+  if (tokenToUse) {
+    headers.Authorization = `Bearer ${tokenToUse}`;
+  }
 
   // Try the request with the current token
   let res = await fetch(url, {
     ...options,
-    headers: {
-      ...options.headers,
-      Authorization: `Bearer ${tokenToUse}`,
-    },
+    headers,
+    credentials: "include",
   });
 
   // If the request was successful, return the response
-  if (res.status !== 401) {
+  if (res.status !== 401 || !retry) {
     return res;
   }
 
   try {
     // If the token is expired, refresh it
-    const { token: newToken, user } = await refreshSession({
-      onSessionExpired,
-    });
+    const { token: newToken, user } = await refreshSession();
 
     updateSession?.({
       user,
@@ -89,20 +115,15 @@ export default async function fetchWrapper({
     }
 
     // Retry the original request with the new token
-    res = await fetch(url, {
-      ...options,
-      headers: {
-        ...options.headers,
-        Authorization: `Bearer ${newToken}`,
-      },
+    return await fetchWrapper({
+      updateSession,
+      token: newToken,
+      url,
+      options,
+      retry: false,
     });
-
-    return res;
   } catch (error) {
-    if (error.message === "SESSION_EXPIRED") {
-      onSessionExpired?.();
-    }
-
+    // refreshSession ya maneja onSessionExpired internamente
     throw error;
   }
 }

@@ -1,6 +1,6 @@
 import "../Styles.css";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../Context/authProvider.jsx";
 import { AddMembers } from "./AddMembers.jsx";
 import { socket } from "../Socket/socket.js";

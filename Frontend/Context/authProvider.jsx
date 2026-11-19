@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import fetchWrapper, { setCurrentToken } from "../Whapi/Wrapper/fetchWrapper";
+import fetchWrapper, { setCurrentToken } from "../Wrapper/fetchWrapper.js"
 import { socket, initSocket, reconnectSocket } from "../src/Socket/socket";
 
 export const AuthContext = createContext({});
@@ -46,7 +46,6 @@ export function AuthContextProvider({ children }) {
   const logout = async () => {
     const res = await fetchWrapper({
       updateSession,
-      onSessionExpired: () => {},
       token,
       url: "http://localhost:3000/whapi/v1/auth/logout",
       options: {
@@ -54,7 +53,7 @@ export function AuthContextProvider({ children }) {
       },
     });
     if (!res.ok) {
-      console.error("Error logging out:", res.error);
+      console.error("Error logging out:", res);
       return;
     }
     socket.disconnect();

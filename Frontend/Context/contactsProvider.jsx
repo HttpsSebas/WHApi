@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import fetchWrapper from "../Whapi/Wrapper/fetchWrapper.js";
+import fetchWrapper from "../Wrapper/fetchWrapper.js"
 import { socket } from "../src/Socket/socket.js";
 import { useAuth } from "./authProvider.jsx";
 

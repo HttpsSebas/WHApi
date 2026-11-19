@@ -63,7 +63,8 @@ export async function getChatsFromDatabase({ userId, chatIds }) {
 
 export async function getChats({ userId }) {
   const userChatsDB = await getChatIds({ userId });
-  const dbChatIds = userChatsDB.map((chat) => String(chat.chatId));
+  const dbChatIds = userChatsDB
+  .map((chat) => String(chat.id));
 
   if (dbChatIds.length === 0) return [];
 
@@ -134,7 +135,7 @@ export async function getChat({ chatId, userId }) {
   }
 }
 
-export async function getChatById({ tx = prisma, chatId, userId }) {
+export async function getChatById({ tx, chatId, userId }) {
   try {
     const chat = await getChat({ chatId, userId });
 
@@ -171,11 +172,11 @@ export async function getChatById({ tx = prisma, chatId, userId }) {
   }
 }
 
-export async function getChatIds({ tx = prisma, userId }) {
+export async function getChatIds({ tx, userId }) {
   return await Chat.getIds({ tx, userId });
 }
 
-export async function updateChat({ tx = prisma, chatId, data }) {
+export async function updateChat({ tx, chatId, data }) {
   const result = await Chat.update({
     tx,
     chatId,
@@ -185,15 +186,15 @@ export async function updateChat({ tx = prisma, chatId, data }) {
   return result;
 }
 
-export async function countGroupAdmin({ tx = prisma, chatId }) {
+export async function countGroupAdmin({ tx, chatId }) {
   return await ChatParticipant.countAdmins({ tx, chatId });
 }
 
-export async function getUnreadMessages({ tx = prisma, userId, chatId }) {
+export async function getUnreadMessages({ tx, userId, chatId }) {
   return await ChatParticipant.getUnreadCount({ tx, userId, chatId });
 }
 
-export async function increaseUnreadMessages({ tx = prisma, userIds, chatId }) {
+export async function increaseUnreadMessages({ tx, userIds, chatId }) {
   const participant = await ChatParticipant.increaseUnreadCount({
     tx,
     userIds,
@@ -204,7 +205,7 @@ export async function increaseUnreadMessages({ tx = prisma, userIds, chatId }) {
 }
 
 export async function decreaseUnreadMessages({
-  tx = prisma,
+  tx,
   userId,
   chatId,
   lastReadMessageId,
@@ -241,26 +242,26 @@ export async function syncUnreadCountsInCache({ chatId }) {
 }
 
 export async function hasAlreadyPrivateChat({
-  tx = prisma,
+  tx,
   userId,
   otherUserId,
 }) {
   return await Chat.findPrivateChat({ tx, userId, otherUserId });
 }
 
-export async function findPrivateChat({ tx = prisma, userId, otherUserId }) {
+export async function findPrivateChat({ tx, userId, otherUserId }) {
   return await Chat.findPrivateChat({ tx, userId, otherUserId });
 }
 
-export async function isUserInChat({ tx = prisma, userId, chatId }) {
+export async function isUserInChat({ tx, userId, chatId }) {
   return await ChatParticipant.findFirst({ tx, userId, chatId });
 }
 
-export async function isUserAdmin({ tx = prisma, userId, chatId }) {
+export async function isUserAdmin({ tx, userId, chatId }) {
   return await ChatParticipant.isAdmin({ tx, userId, chatId });
 }
 
-export async function editGroup({ tx = prisma, chatId, data }) {
+export async function editGroup({ tx, chatId, data }) {
   const editedGroup = await updateChat({ tx, chatId, data });
 
   if (!editedGroup) {
@@ -363,7 +364,7 @@ export async function leaveChat({ userId, chatId }) {
   return chat;
 }
 
-export async function getChatParticipantsFromDB({ tx = prisma, chatId }) {
+export async function getChatParticipantsFromDB({ tx, chatId }) {
   return await ChatParticipant.findMany({ tx, chatId });
 }
 
@@ -391,15 +392,15 @@ export async function getChatParticipants({ chatId }) {
   return participants;
 }
 
-export async function getChatParticipantIds({ tx = prisma, chatId }) {
+export async function getChatParticipantIds({ tx, chatId }) {
   return await ChatParticipant.getIds({ tx, chatId });
 }
 
-export async function upgradeToAdmin({ tx = prisma, userId, chatId }) {
+export async function upgradeToAdmin({ tx, userId, chatId }) {
   return await ChatParticipant.upgrade({ tx, userId, chatId });
 }
 
-export async function downgradeToMember({ tx = prisma, userId, chatId }) {
+export async function downgradeToMember({ tx, userId, chatId }) {
   return await ChatParticipant.downgrade({ tx, userId, chatId });
 }
 
